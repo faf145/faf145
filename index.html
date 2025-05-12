@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение геопозиции</title>
+</head>
+<body>
+    <h1>Подтверждение геопозиции</h1>
+    <p>Пожалуйста, подтвердите вашу геопозицию.</p>
+    <button id="confirmButton">Подтвердить</button>
+
+    <script>
+        document.getElementById('confirmButton').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const userId = new URLSearchParams(window.location.search).get('user_id');
+                    fetch('/submit_geo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ user_id: userId, latitude: latitude, longitude: longitude })
+                    }).then(response => response.json()).then(data => {
+                        alert('Геопозиция подтверждена!');
+                    });
+                }, function(error) {
+                    alert('Не удалось получить геопозицию.');
+                });
+            } else {
+                alert('Геолокация не поддерживается вашим браузером.');
+            }
+        });
+    </script>
+</body>
+</html>
