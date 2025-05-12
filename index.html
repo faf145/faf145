@@ -12,19 +12,32 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Geolocation code started');
             if (navigator.geolocation) {
+                console.log('Geolocation is supported');
                 navigator.geolocation.getCurrentPosition(function(position) {
+                    console.log('Getting current position...');
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
                     const userId = new URLSearchParams(window.location.search).get('user_id');
-                    fetch('https://your-server-url.herokuapp.com/submit_geo', { // ЗАМЕНИТЕ THIS URL!
+                    console.log('Latitude:', latitude, 'Longitude:', longitude, 'UserId:', userId);
+                    fetch('https://geo-data-endpoint.free.beeceptor.com/submit_geo', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({ user_id: userId, latitude: latitude, longitude: longitude })
-                    }).then(response => response.json()).then(data => {
-                        alert('Геопозиция подтверждена!');
+                    }).then(response => response.json())
+                      .then(data => {
+                        if (data.status === "success") {
+                            alert('Геопозиция подтверждена!');
+                        } else {
+                            alert('Произошла ошибка при подтверждении геопозиции.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при отправке запроса:', error);
+                        alert('Произошла ошибка при отправке данных.');
                     });
                 }, function(error) {
                     alert('Не удалось получить геопозицию.');
