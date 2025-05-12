@@ -12,39 +12,58 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Geolocation code started');
-            if (navigator.geolocation) {
-                console.log('Geolocation is supported');
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    console.log('Getting current position...');
-                    const latitude = position.coords.latitude;
-                    const longitude = position.coords.longitude;
-                    const userId = new URLSearchParams(window.location.search).get('user_id');
-                    console.log('Latitude:', latitude, 'Longitude:', longitude, 'UserId:', userId);
-                    fetch('https://geo-data-endpoint.free.beeceptor.com/submit_geo', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
+            const confirmButton = document.getElementById('confirmButton');
+
+            confirmButton.addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            const userId = new URLSearchParams(window.location.search).get('user_id');
+
+                            if (userId) {
+                                const data = {
+                                    user_id: userId,
+                                    latitude: latitude,
+                                    longitude: longitude
+                                };
+
+                                console.log('Отправляемые данные:', data);
+
+                                fetch('https://fasfsafsa.free.beeceptor.com/submit_geo', { // ОБНОВЛЕНО!
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify(data)
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Network response was not ok');
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    console.log('Ответ от сервера:', data);
+                                    alert('Геопозиция успешно подтверждена!');
+                                })
+                                .catch(error => {
+                                    console.error('Ошибка при отправке данных:', error);
+                                    alert('Произошла ошибка при отправке данных. Пожалуйста, попробуйте позже.');
+                                });
+                            } else {
+                                alert('Ошибка: Не найден user_id в URL.');
+                            }
                         },
-                        body: JSON.stringify({ user_id: userId, latitude: latitude, longitude: longitude })
-                    }).then(response => response.json())
-                      .then(data => {
-                        if (data.status === "success") {
-                            alert('Геопозиция подтверждена!');
-                        } else {
-                            alert('Произошла ошибка при подтверждении геопозиции.');
+                        function(error) {
+                            alert('Не удалось получить геопозицию.');
                         }
-                    })
-                    .catch(error => {
-                        console.error('Ошибка при отправке запроса:', error);
-                        alert('Произошла ошибка при отправке данных.');
-                    });
-                }, function(error) {
-                    alert('Не удалось получить геопозицию.');
-                });
-            } else {
-                alert('Геолокация не поддерживается вашим браузером.');
-            }
+                    );
+                } else {
+                    alert('Геолокация не поддерживается вашим браузером.');
+                }
+            });
         });
     </script>
 </body>
